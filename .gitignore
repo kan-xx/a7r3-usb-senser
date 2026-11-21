@@ -1,0 +1,27 @@
+# Python bytecode & packaging
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+build/
+dist/
+.pytest_cache/
+.coverage
+.venv/
+venv/
+.DS_Store
+
+# Strictly exclude binary blobs & media files
+*.so
+*.elf
+*.ko
+*.bin
+*.cpio
+*.cpio.gz
+vmlinuz*
+initramfs*
+*.ARW
+*.MP4
+*.JPG
+*.wav

@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "a7r3-usb-senser"
+version = "0.1.0"
+description = "Host-to-camera USB mode classifier, USB 3.1 SuperSpeed SENSER auth transport, paced diagnostic terminal, and bounded RAM-staging SDK for Sony ILCE-7RM3"
+readme = "README.md"
+license = { file = "LICENSE" }
+requires-python = ">=3.10"
+authors = [
+    { name = "kan-xx contributors" }
+]
+keywords = ["sony", "a7r3", "ilce-7rm3", "usb", "libusb", "senser", "diagnostics"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+]
+dependencies = []
+
+[project.optional-dependencies]
+usb = [
+    "pyusb>=1.2.1",
+    "libusb-package>=1.0.26.1",
+]
+dev = [
+    "pytest>=7.0",
+]
+
+[project.scripts]
+a7r3-senser = "a7r3_senser.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[project.urls]
+Homepage = "https://github.com/kan-xx/a7r3-usb-senser"
+Repository = "https://github.com/kan-xx/a7r3-usb-senser"

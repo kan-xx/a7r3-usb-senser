@@ -1,0 +1,71 @@
+"""a7r3-usb-senser: USB mode management, SuperSpeed SENSER transport, and session SDK."""
+
+from .transport import (
+    AUTH_BYTES,
+    SONY_VID,
+    PID_MSC,
+    PID_PTP,
+    PID_SENSER,
+    PID_SENSER_ALT,
+    PID_CHARGER,
+    USBMode,
+    AuthFrameLengthError,
+    ServiceEntryConfig,
+    classify_usb_mode,
+    auth_read_size,
+    read_auth_response,
+    run_msc_service_entry,
+)
+from .terminal import (
+    DEFAULT_PACE_BYTES,
+    DEFAULT_PACE_DELAY_SEC,
+    ordered_terminal_markers,
+    write_paced_command,
+    recover_terminal,
+    PacedTerminal,
+)
+from .session import (
+    CHUNK_BYTES,
+    MAX_FILE_BYTES,
+    MAX_BUNDLE_BYTES,
+    PFUNC_PRODUCT_INFO,
+    resolve_pmca_root,
+    pack_plugin_request,
+    send_plugin_command,
+    prepare_ram_bundle,
+    SenserSession,
+)
+
+__all__ = [
+    "AUTH_BYTES",
+    "SONY_VID",
+    "PID_MSC",
+    "PID_PTP",
+    "PID_SENSER",
+    "PID_SENSER_ALT",
+    "PID_CHARGER",
+    "USBMode",
+    "AuthFrameLengthError",
+    "ServiceEntryConfig",
+    "classify_usb_mode",
+    "auth_read_size",
+    "read_auth_response",
+    "run_msc_service_entry",
+    "DEFAULT_PACE_BYTES",
+    "DEFAULT_PACE_DELAY_SEC",
+    "ordered_terminal_markers",
+    "write_paced_command",
+    "recover_terminal",
+    "PacedTerminal",
+    "CHUNK_BYTES",
+    "MAX_FILE_BYTES",
+    "MAX_BUNDLE_BYTES",
+    "PFUNC_PRODUCT_INFO",
+    "resolve_pmca_root",
+    "pack_plugin_request",
+    "send_plugin_command",
+    "prepare_ram_bundle",
+    "SenserSession",
+]
+
+__version__ = "0.1.0"
