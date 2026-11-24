@@ -162,15 +162,25 @@ def restore_msc_kernel_driver(*, expected_serial: str | None = None) -> list[dic
     return results
 
 
+def _resolve_expected_model(expected_model: str | None, allow_any_model: bool = False) -> str:
+    if allow_any_model:
+        return ""
+    if expected_model is not None:
+        return expected_model.strip()
+    return os.environ.get("A7R3_USB_MODEL", "ILCE-7RM3").strip()
+
+
 def verify_msc_restoration(
     *,
     expected_serial: str | None = None,
-    expected_model: str = "ILCE-7RM3",
+    expected_model: str | None = None,
+    allow_any_model: bool = False,
     attempts: int = 12,
     interval_sec: float = 0.5,
 ) -> dict[str, Any]:
     """Poll read-only USB descriptors until normal MSC mode and host driver are active."""
     serial = expected_serial or os.environ.get("A7R3_USB_SERIAL")
+    model = _resolve_expected_model(expected_model, allow_any_model=allow_any_model)
     observed: list[dict[str, Any]] = []
     matches: list[dict[str, Any]] = []
     for _ in range(max(1, attempts)):
@@ -179,7 +189,7 @@ def verify_msc_restoration(
             x
             for x in observed
             if x.get("product_id") == hex(PID_MSC)
-            and (not expected_model or x.get("product") == expected_model)
+            and (not model or x.get("product") == model)
             and (not serial or x.get("serial") == serial)
             and x.get("kernel_driver_active") is True
         ]
@@ -198,7 +208,8 @@ def acquire_camera_metadata(
     output_dir: Path,
     *,
     expected_serial: str | None = None,
-    expected_model: str = "ILCE-7RM3",
+    expected_model: str | None = None,
+    allow_any_model: bool = False,
     pmca_root: Path | str | None = None,
 ) -> dict[str, Any]:
     """Read-only camera identification, settings backup verification, and `/proc` metadata snapshot."""
@@ -217,6 +228,7 @@ def acquire_camera_metadata(
     )
 
     serial = expected_serial or os.environ.get("A7R3_USB_SERIAL")
+    model = _resolve_expected_model(expected_model, allow_any_model=allow_any_model)
     output_dir = output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=False)
 
@@ -277,7 +289,7 @@ def acquire_camera_metadata(
         raise RuntimeError(f"Expected exactly one Sony USB device, found {len(devices)}")
 
     device = devices[0]
-    if (expected_model and device.product != expected_model) or (
+    if (model and device.product != model) or (
         serial and device.serial_number != serial
     ):
         usb.util.dispose_resources(device)

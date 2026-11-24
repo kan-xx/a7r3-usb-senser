@@ -307,6 +307,64 @@ class ServiceEntryCleanupTests(unittest.TestCase):
         self.assertEqual(state["attaches"], 1)
         self.assertTrue(d["host_driver_restored"])
 
+    def test_model_override_and_allow_any_model(self) -> None:
+        import os
+        from unittest import mock
+
+        device = _MockMscDevice(pid=PID_MSC, serial="SYNTHETIC_SN_02")
+        device.product = "ILCE-7M3"
+        usb_core_mod = SimpleNamespace(find=lambda **_k: [device])
+        usb_util_mod = SimpleNamespace(
+            dispose_resources=lambda _d: None,
+            release_interface=lambda _d, _i: None,
+        )
+
+        # Default config rejects non-ILCE-7RM3 product string
+        with mock.patch.dict(os.environ, {}, clear=False):
+            os.environ.pop("A7R3_USB_MODEL", None)
+            default_cfg = ServiceEntryConfig.from_env(serial="SYNTHETIC_SN_02", bus=1, ports=(2,), timeout_seconds=0)
+        rc, report = run_msc_service_entry(
+            default_cfg,
+            enter=False,
+            usb_core_mod=usb_core_mod,
+            usb_util_mod=usb_util_mod,
+            backend_getter=lambda: object(),
+        )
+        self.assertEqual(rc, 1)
+        self.assertIn("Camera model mismatch", report["error"])
+
+        # A7R3_USB_MODEL environment variable matches alternate model
+        with mock.patch.dict(os.environ, {"A7R3_USB_MODEL": "ILCE-7M3"}):
+            env_cfg = ServiceEntryConfig.from_env(serial="SYNTHETIC_SN_02", bus=1, ports=(2,), timeout_seconds=0)
+        rc2, report2 = run_msc_service_entry(
+            env_cfg,
+            enter=False,
+            usb_core_mod=usb_core_mod,
+            usb_util_mod=usb_util_mod,
+            backend_getter=lambda: object(),
+        )
+        self.assertEqual(rc2, 0)
+        self.assertTrue(report2["identity_verified"])
+
+        # allow_any_model skips USB product string lock while preserving MSC interface check
+        any_cfg = ServiceEntryConfig.from_env(
+            serial="SYNTHETIC_SN_02",
+            allow_any_model=True,
+            bus=1,
+            ports=(2,),
+            timeout_seconds=0,
+        )
+        self.assertEqual(any_cfg.expected_model, "")
+        rc3, report3 = run_msc_service_entry(
+            any_cfg,
+            enter=False,
+            usb_core_mod=usb_core_mod,
+            usb_util_mod=usb_util_mod,
+            backend_getter=lambda: object(),
+        )
+        self.assertEqual(rc3, 0)
+        self.assertEqual(report3["usb"]["model"], "ILCE-7M3")
+
 
 if __name__ == "__main__":
     unittest.main()

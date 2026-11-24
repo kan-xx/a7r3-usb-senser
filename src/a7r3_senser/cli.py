@@ -31,7 +31,8 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_enter = sub.add_parser("enter", help="Verify MSC identity and enter temporary SENSER service mode")
     p_enter.add_argument("--serial", help="Expected USB serial number (or set A7R3_USB_SERIAL)")
-    p_enter.add_argument("--model", default="ILCE-7RM3", help="Expected USB product string")
+    p_enter.add_argument("--model", default=None, help="Expected USB product string (or set A7R3_USB_MODEL)")
+    p_enter.add_argument("--allow-any-model", action="store_true", help="Allow any Sony MSC camera product string")
     p_enter.add_argument("--dry-run", action="store_true", help="Verify descriptors only without detaching/entering")
     p_enter.add_argument("--report", type=Path, help="Optional JSON report path")
 
@@ -40,13 +41,15 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_verify = sub.add_parser("verify-restore", help="Poll descriptors until normal MSC + kernel driver active")
     p_verify.add_argument("--serial", help="Expected USB serial number (or set A7R3_USB_SERIAL)")
-    p_verify.add_argument("--model", default="ILCE-7RM3", help="Expected USB product string")
+    p_verify.add_argument("--model", default=None, help="Expected USB product string (or set A7R3_USB_MODEL)")
+    p_verify.add_argument("--allow-any-model", action="store_true", help="Allow any Sony MSC camera product string")
     p_verify.add_argument("--attempts", type=int, default=12, help="Polling attempts (default: 12)")
 
     p_acq = sub.add_parser("acquire-info", help="Read-only camera info, settings backup, and /proc metadata")
     p_acq.add_argument("--output", type=Path, required=True, help="New output directory for evidence")
     p_acq.add_argument("--serial", help="Expected USB serial number (or set A7R3_USB_SERIAL)")
-    p_acq.add_argument("--model", default="ILCE-7RM3", help="Expected USB product string")
+    p_acq.add_argument("--model", default=None, help="Expected USB product string (or set A7R3_USB_MODEL)")
+    p_acq.add_argument("--allow-any-model", action="store_true", help="Allow any Sony MSC camera product string")
     p_acq.add_argument("--pmca-root", type=Path, help="Path to external Sony-PMCA-RE checkout")
 
     return parser
@@ -61,7 +64,11 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps(probe_msc_transport(expected_serial=args.serial), indent=2, ensure_ascii=False))
         return 0
     if args.command == "enter":
-        cfg = ServiceEntryConfig.from_env(serial=args.serial, model=args.model)
+        cfg = ServiceEntryConfig.from_env(
+            serial=args.serial,
+            model=args.model,
+            allow_any_model=args.allow_any_model,
+        )
         rc, report = run_msc_service_entry(cfg, enter=not args.dry_run, report_path=args.report)
         print(json.dumps(report, indent=2, ensure_ascii=False))
         return rc
@@ -72,6 +79,7 @@ def main(argv: list[str] | None = None) -> int:
         res = verify_msc_restoration(
             expected_serial=args.serial,
             expected_model=args.model,
+            allow_any_model=args.allow_any_model,
             attempts=args.attempts,
         )
         print(json.dumps(res, indent=2, ensure_ascii=False))
@@ -81,6 +89,7 @@ def main(argv: list[str] | None = None) -> int:
             args.output,
             expected_serial=args.serial,
             expected_model=args.model,
+            allow_any_model=args.allow_any_model,
             pmca_root=args.pmca_root,
         )
         print(json.dumps(res, indent=2, ensure_ascii=False))

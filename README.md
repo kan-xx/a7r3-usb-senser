@@ -89,6 +89,8 @@ make test
 pip install -e ".[usb,dev]"
 export SONY_PMCA_ROOT="/path/to/Sony-PMCA-RE"
 export A7R3_USB_SERIAL="YOUR_CAMERA_USB_SERIAL"
+# 可选：适配其他同协议机型时可通过环境变量或 --model / --allow-any-model 覆盖默认型号校验
+# export A7R3_USB_MODEL="ILCE-7RM3"
 ```
 
 ### 2. CLI 常用命令示例

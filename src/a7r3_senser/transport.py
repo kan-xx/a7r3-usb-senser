@@ -163,7 +163,8 @@ class ServiceEntryConfig:
         cls,
         *,
         serial: str | None = None,
-        model: str = "ILCE-7RM3",
+        model: str | None = None,
+        allow_any_model: bool = False,
         bus: int | None = None,
         ports: tuple[int, ...] | None = None,
         timeout_seconds: int = 45,
@@ -172,8 +173,14 @@ class ServiceEntryConfig:
         resolved_serial = serial if serial is not None else os.environ.get("A7R3_USB_SERIAL")
         if resolved_serial is not None:
             resolved_serial = resolved_serial.strip() or None
+        if allow_any_model:
+            resolved_model = ""
+        elif model is not None:
+            resolved_model = model.strip()
+        else:
+            resolved_model = os.environ.get("A7R3_USB_MODEL", "ILCE-7RM3").strip()
         return cls(
-            expected_model=model,
+            expected_model=resolved_model,
             expected_serial=resolved_serial,
             expected_bus=bus,
             expected_ports=ports,
