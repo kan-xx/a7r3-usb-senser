@@ -10,7 +10,7 @@ readme = "README.md"
 license = { file = "LICENSE" }
 requires-python = ">=3.10"
 authors = [
-    { name = "kan-xx contributors" }
+    { name = "sony-a7r3-research contributors" }
 ]
 keywords = ["sony", "a7r3", "ilce-7rm3", "usb", "libusb", "senser", "diagnostics"]
 classifiers = [
@@ -47,5 +47,5 @@ pythonpath = ["src"]
 testpaths = ["tests"]
 
 [project.urls]
-Homepage = "https://github.com/kan-xx/a7r3-usb-senser"
-Repository = "https://github.com/kan-xx/a7r3-usb-senser"
+Homepage = "https://github.com/sony-a7r3-research/a7r3-usb-senser"
+Repository = "https://github.com/sony-a7r3-research/a7r3-usb-senser"
